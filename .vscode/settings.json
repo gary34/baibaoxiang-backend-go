@@ -1,0 +1,10 @@
+{
+    "terminal.integrated.env.osx": {
+        "DB_HOST": "127.0.0.1",
+        "DB_PORT": "63306",
+        "DB_USER": "root",
+        "DB_PASS": "root",
+        "DB_NAME": "bbx",
+        "PORT": "60888"
+    }
+}
