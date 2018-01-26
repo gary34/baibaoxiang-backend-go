@@ -9,4 +9,6 @@ type Baobei struct {
 	Tags      string `json:"itags"`
 	URL       string `json:"url"`
 	Operator  string `json:"operator"`
+	InFavor   bool   `gorm:"-" json:"in_favor"`
+	Users     []User `gorm:"many2many:user_baobeis;" json:"-"`
 }

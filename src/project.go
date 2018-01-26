@@ -11,7 +11,7 @@ type Project struct {
 	Baobeis []Baobei `json:"items"`
 }
 
-func getAllProjectBaobeis() (list []Project, err error) {
+func getAllProjectBaobeis(uid string) (list []Project, err error) {
 	conn := GetDB()
 	if conn == nil {
 		return
@@ -23,11 +23,25 @@ func getAllProjectBaobeis() (list []Project, err error) {
 	for i := 0; i < len(list); i++ {
 		p := &list[i]
 		conn.Model(p).Related(&p.Baobeis)
+		for j := 0; j < len(p.Baobeis); j++ {
+			b := &p.Baobeis[j]
+			var c int
+			if err = conn.Model(&UserBaobei{}).
+				Joins("inner join users on user_baobeis.user_id = users.id").
+				Where("users.uid = ? and user_baobeis.baobei_id = ?", uid, b.ID).Count(&c).Error; err != nil {
+				gLogger.ELog("find favor list error %s", err.Error())
+				return
+			}
+			if c > 0 {
+				b.InFavor = true
+			}
+		}
 	}
 	return list, nil
 }
 
 func projectBaobeiListHandler(context *gin.Context) {
-	list, err := getAllProjectBaobeis()
+	uid, _ := context.GetQuery("uid")
+	list, err := getAllProjectBaobeis(uid)
 	renderJSON(list, err, context)
 }

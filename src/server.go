@@ -12,6 +12,7 @@ func StartServer(port string) {
 	r := gin.Default()
 	api := r.Group("/api")
 	api.GET("/items.json", projectBaobeiListHandler)
+	api.GET("/favoies.json", getUserFavoriesHandler)
 	r.Run(fmt.Sprintf(":%s", port))
 }
 

@@ -32,6 +32,6 @@ func InitDB(host, name, user, password, port string) error {
 	db.LogMode(true)
 	gDBConnect = db
 
-	gDBConnect.AutoMigrate(&Baobei{}, &Project{})
+	gDBConnect.AutoMigrate(&UserBaobei{}, &Baobei{}, &Project{}, &User{})
 	return nil
 }
