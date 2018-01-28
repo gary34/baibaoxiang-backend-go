@@ -1,6 +1,9 @@
 package main
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
+)
 
 type User struct {
 	CommonModle
@@ -15,12 +18,15 @@ func getUserFavoriesHandler(context *gin.Context) {
 	renderJSON(list, err, context)
 }
 func getUserFavories(uid string) (list []Baobei, err error) {
-	conn := GetDB()
-	var u User
-	if err = conn.Where("uid = ?", uid).First(&u).Error; err != nil {
-		gLogger.ELog("query user error %s", err.Error)
-		return
+
+	u, err := getUserByUID(uid)
+	if err != nil {
+		return nil, err
 	}
+	if u == nil {
+		return make([]Baobei, 0), nil
+	}
+	conn := GetDB()
 	if err = conn.Model(&u).Related(&u.Baobeis, "Baobeis").Error; err != nil {
 		gLogger.ELog("query user baobeis error %s", err.Error)
 		return
@@ -30,4 +36,19 @@ func getUserFavories(uid string) (list []Baobei, err error) {
 		b.InFavor = true
 	}
 	return u.Baobeis, err
+}
+
+func getUserByUID(uid string) (user *User, err error) {
+	conn := GetDB()
+	// var u User
+	user = &User{UID: uid}
+	if err = conn.Where("uid = ?", uid).First(user).Error; err != nil {
+		if err != gorm.ErrRecordNotFound {
+			gLogger.ELog("query user error %s,uid %s", err.Error(), uid)
+		} else {
+			err = nil
+		}
+		return
+	}
+	return
 }
